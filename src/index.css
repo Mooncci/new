@@ -10,6 +10,7 @@ body {
   color: #3D3929;
   height: 100dvh;
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 #root {
