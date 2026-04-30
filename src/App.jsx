@@ -1,9 +1,8 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import LeftPanel from './components/LeftPanel'
 import RightPanel from './components/RightPanel'
 import Settings from './components/Settings'
 import Chat from './components/Chat'
-import Welcome from './components/Welcome'
 import BottomSheet from './components/BottomSheet'
 import ThinkingPanel from './components/ThinkingPanel'
 import './App.css'
@@ -98,24 +97,16 @@ export default function App() {
           </button>
         </header>
 
-        {msgs.length === 0 ? (
-          <Welcome />
-        ) : (
-          <Chat
-            messages={msgs}
-            pushMessage={pushMessage}
-            updateLastBotMsg={updateLastBotMsg}
-            apiProfiles={apiProfiles}
-            activeApiId={activeApiId}
-            titleApiProfiles={titleApiProfiles}
-            activeTitleApiId={activeTitleApiId}
-            onShowThinking={(content, title) => { setThinkingContent(content); setThinkingTitle(title); setShowThinking(true) }}
-          />
-        )}
-
-        <div className="ina">
-          <div className="inb" id="chat-input-box" />
-        </div>
+        <Chat
+          messages={msgs}
+          pushMessage={pushMessage}
+          updateLastBotMsg={updateLastBotMsg}
+          apiProfiles={apiProfiles}
+          activeApiId={activeApiId}
+          titleApiProfiles={titleApiProfiles}
+          activeTitleApiId={activeTitleApiId}
+          onShowThinking={(content, title) => { setThinkingContent(content); setThinkingTitle(title); setShowThinking(true) }}
+        />
       </div>
 
       <BottomSheet show={showSheet} onClose={() => setShowSheet(false)}
