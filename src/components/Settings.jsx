@@ -28,19 +28,19 @@ function ApiSection({ title, profiles, setProfiles, activeId, setActiveId }) {
   const del = (id) => { setProfiles(p=>p.filter(x=>x.id!==id)); if(activeId===id) setActiveId(null) }
 
   return (
-    <div className="st-card">
-      <div className="st-card-title">{title}</div>
+    <div className="st-sec">
+      <div className="st-sec-title">{title}</div>
       {profiles.map(p => (
-        <div key={p.id} className={`st-item ${activeId===p.id?'act':''}`} onClick={() => setActiveId(p.id)}>
-          <div className="st-item-left"><div className={`st-radio ${activeId===p.id?'on':''}`}/><div><div className="st-item-name">{p.name}</div><div className="st-item-sub">{p.model||'未选择'}</div></div></div>
-          <div className="st-item-acts"><button onClick={e=>{e.stopPropagation();edit(p)}}>编辑</button><button className="del-text" onClick={e=>{e.stopPropagation();del(p.id)}}>删除</button></div>
+        <div key={p.id} className={`st-api-item ${activeId===p.id?'act':''}`} onClick={() => setActiveId(p.id)}>
+          <div className="st-api-left"><div className={`st-radio ${activeId===p.id?'on':''}`}/><div><div className="st-api-name">{p.name}</div><div className="st-api-sub">{p.model||'未选择'}</div></div></div>
+          <div className="st-api-acts"><button onClick={e=>{e.stopPropagation();edit(p)}}>编辑</button><button className="del-text" onClick={e=>{e.stopPropagation();del(p.id)}}>删除</button></div>
         </div>
       ))}
       <div className="st-form">
         <input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="配置名称" />
         <input value={form.baseUrl} onChange={e=>setForm({...form,baseUrl:e.target.value})} placeholder="API Base URL" />
         <input type="password" value={form.apiKey} onChange={e=>setForm({...form,apiKey:e.target.value})} placeholder="API Key" />
-        <div className="st-model-row"><input value={form.model} onChange={e=>setForm({...form,model:e.target.value})} placeholder="模型" /><button className="pill-btn" onClick={fetchModels} disabled={loading}>{loading?'拉取中...':'拉取模型'}</button></div>
+        <div className="st-model-row"><input value={form.model} onChange={e=>setForm({...form,model:e.target.value})} placeholder="模型" /><button className="pill-btn" onClick={fetchModels} disabled={loading}>{loading?'拉取中...':'拉取'}</button></div>
         {models.length>0 && <div className="model-list">{models.map(m=><button key={m} className={`model-chip ${form.model===m?'act':''}`} onClick={()=>setForm({...form,model:m})}>{m}</button>)}</div>}
         <div className="st-form-acts"><button className="pill-btn outline" onClick={testApi} disabled={testing}>{testing?'测试中...':'测试'}</button><button className="pill-btn primary" onClick={save}>{editId?'更新':'保存'}</button></div>
         {result && <div className={`test-result ${result.includes('成功')?'ok':'fail'}`}>{result}</div>}
@@ -58,10 +58,23 @@ export default function Settings({ onClose, apiProfiles, setApiProfiles, activeA
         <div style={{width:36}} />
       </div>
       <div className="st-body">
+        <div className="st-sec">
+          <div className="st-sec-title">通用</div>
+          <div className="st-row"><span>消息字体大小</span><span className="st-val">默认</span></div>
+          <div className="st-row"><span>打字速度</span><span className="st-val">正常</span></div>
+          <div className="st-row"><span>思考过程</span><span className="st-val">显示</span></div>
+          <div className="st-row"><span>消息气泡</span><span className="st-val">淡色</span></div>
+          <div className="st-row"><span>发送键</span><span className="st-val">Enter</span></div>
+          <div className="st-row"><span>语言</span><span className="st-val">中文</span></div>
+        </div>
+
         <ApiSection title="聊天 API（OpenAI 兼容）" profiles={apiProfiles} setProfiles={setApiProfiles} activeId={activeApiId} setActiveId={setActiveApiId} />
         <ApiSection title="标题 API（CoT 标题生成）" profiles={titleApiProfiles} setProfiles={setTitleApiProfiles} activeId={activeTitleApiId} setActiveId={setActiveTitleApiId} />
-        <div className="st-card">
-          <div className="st-row-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><div><span>关于</span><span className="st-row-sub">v0.1.0</span></div></div>
+
+        <div className="st-sec">
+          <div className="st-sec-title">关于</div>
+          <div className="st-row"><span>版本</span><span className="st-val">0.1.0</span></div>
+          <div className="st-row"><span>开发者</span><span className="st-val">Mooncci & Claude</span></div>
         </div>
       </div>
     </div>
