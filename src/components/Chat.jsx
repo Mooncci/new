@@ -13,7 +13,6 @@ export default function Chat({ messages, pushMessage, updateLastBotMsg, onShowTh
   const timerRef = useRef(null)
   const thinkTimerRef = useRef(null)
   const endRef = useRef(null)
-  const hasMsg = messages.length > 0
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, streamText])
 
@@ -24,16 +23,12 @@ export default function Chat({ messages, pushMessage, updateLastBotMsg, onShowTh
     const thinkTitle = '审视了真心与责任的区别，确认了留...'
     setStreamThinkTitle(thinkTitle)
     thinkTimerRef.current = setInterval(() => {
-      ti++
-      setStreamThink(thinkText.slice(0, ti))
+      ti++; setStreamThink(thinkText.slice(0, ti))
       if (ti >= thinkText.length) {
         clearInterval(thinkTimerRef.current)
         let ci = 0
         timerRef.current = setInterval(() => {
-          ci++
-          const txt = fullText.slice(0, ci)
-          setStreamText(txt)
-          updateLastBotMsg(txt, thinkText, thinkTitle)
+          ci++; const txt = fullText.slice(0, ci); setStreamText(txt); updateLastBotMsg(txt, thinkText, thinkTitle)
           if (ci >= fullText.length) { clearInterval(timerRef.current); setIsGen(false) }
         }, 35)
       }
@@ -42,32 +37,26 @@ export default function Chat({ messages, pushMessage, updateLastBotMsg, onShowTh
 
   const send = () => {
     if (!input.trim() || isGen) return
-    pushMessage({ id: Date.now(), text: input, sender: 'user' })
-    setInput('')
+    pushMessage({ id: Date.now(), text: input, sender: 'user' }); setInput('')
     const reply = MOCK_REPLIES[Math.floor(Math.random() * MOCK_REPLIES.length)]
     setTimeout(() => doStream(reply, MOCK_THINKING), 300)
   }
 
-  const stop = () => {
-    if (timerRef.current) clearInterval(timerRef.current)
-    if (thinkTimerRef.current) clearInterval(thinkTimerRef.current)
-    setIsGen(false)
-  }
-
+  const stop = () => { if (timerRef.current) clearInterval(timerRef.current); if (thinkTimerRef.current) clearInterval(thinkTimerRef.current); setIsGen(false) }
   const onKey = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }
 
   return (
     <>
-      {!hasMsg ? <Welcome /> : (
+      {messages.length === 0 ? <Welcome /> : (
         <div className="msgs">
           {messages.map((m, i) => (
             <div key={m.id} className={`msg ${m.sender}`}>
               {m.sender === 'user' ? <p className="tu">{m.text}</p> : (
                 <div className="bot-wrap">
                   {(m.thinking || (i === messages.length-1 && isGen && streamThink)) && (
-                    <button className="think-chip" onClick={() => onShowThinking(m.thinking || streamThink, m.thinkTitle || streamThinkTitle)}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9B9384" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                      <span className="think-chip-text">{m.thinkTitle || streamThinkTitle || '思考'}</span>
+                    <button className="think-line" onClick={() => onShowThinking(m.thinking || streamThink, m.thinkTitle || streamThinkTitle)}>
+                      <span className="think-dot" />
+                      <span className="think-title">{m.thinkTitle || streamThinkTitle || '思考'}</span>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B5AD9E" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
                     </button>
                   )}
@@ -79,19 +68,12 @@ export default function Chat({ messages, pushMessage, updateLastBotMsg, onShowTh
           <div ref={endRef} />
         </div>
       )}
-      <div className="ina">
-        <div className="inb">
-          <button className="abtn" onClick={onOpenSheet}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          </button>
-          <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={onKey} placeholder="说点什么..." />
-          {isGen ? (
-            <button className="sbtn stop" onClick={stop}><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></button>
-          ) : (
-            <button className="sbtn" onClick={send} disabled={!input.trim()}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
-          )}
-        </div>
-      </div>
+      <div className="ina"><div className="inb">
+        <button className="abtn" onClick={onOpenSheet}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+        <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={onKey} placeholder="说点什么..." />
+        {isGen ? <button className="sbtn stop" onClick={stop}><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></button>
+        : <button className="sbtn" onClick={send} disabled={!input.trim()}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>}
+      </div></div>
     </>
   )
 }
