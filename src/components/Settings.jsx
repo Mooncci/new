@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function ApiSection({ title, profiles, setProfiles, activeId, setActiveId }) {
   const [form, setForm] = useState({ name:'', baseUrl:'', apiKey:'', model:'' })
@@ -49,7 +49,46 @@ function ApiSection({ title, profiles, setProfiles, activeId, setActiveId }) {
   )
 }
 
+const THEMES = [
+  { id:'light', name:'浅色' },
+  { id:'dark', name:'深色' },
+  { id:'system', name:'跟随系统' },
+]
+
+const FONTS = [
+  { id:'default', name:'默认' },
+  { id:'serif', name:'衬线' },
+  { id:'mono', name:'等宽' },
+]
+
 export default function Settings({ onClose, apiProfiles, setApiProfiles, activeApiId, setActiveApiId, titleApiProfiles, setTitleApiProfiles, activeTitleApiId, setActiveTitleApiId }) {
+  const [theme, setTheme] = useState(() => localStorage.getItem('mc-theme') || 'light')
+  const [font, setFont] = useState(() => localStorage.getItem('mc-font') || 'default')
+  const [showCot, setShowCot] = useState(() => localStorage.getItem('mc-cot') !== 'false')
+  const [fontSize, setFontSize] = useState(() => localStorage.getItem('mc-fontsize') || 'default')
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('mc-theme', theme)
+  }, [theme])
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-font', font)
+    localStorage.setItem('mc-font', font)
+  }, [font])
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-fontsize', fontSize)
+    localStorage.setItem('mc-fontsize', fontSize)
+  }, [fontSize])
+
+  useEffect(() => { localStorage.setItem('mc-cot', showCot) }, [showCot])
+
+  const cycleTheme = () => { const i = THEMES.findIndex(t=>t.id===theme); setTheme(THEMES[(i+1)%THEMES.length].id) }
+  const cycleFont = () => { const i = FONTS.findIndex(f=>f.id===font); setFont(FONTS[(i+1)%FONTS.length].id) }
+  const cycleFontSize = () => { const sizes = ['small','default','large']; const i = sizes.indexOf(fontSize); setFontSize(sizes[(i+1)%sizes.length]) }
+  const sizeLabel = fontSize === 'small' ? '小' : fontSize === 'large' ? '大' : '默认'
+
   return (
     <div className="st-wrap">
       <div className="st-header">
@@ -59,13 +98,39 @@ export default function Settings({ onClose, apiProfiles, setApiProfiles, activeA
       </div>
       <div className="st-body">
         <div className="st-sec">
-          <div className="st-sec-title">通用</div>
-          <div className="st-row"><span>消息字体大小</span><span className="st-val">默认</span></div>
-          <div className="st-row"><span>打字速度</span><span className="st-val">正常</span></div>
-          <div className="st-row"><span>思考过程</span><span className="st-val">显示</span></div>
-          <div className="st-row"><span>消息气泡</span><span className="st-val">淡色</span></div>
-          <div className="st-row"><span>发送键</span><span className="st-val">Enter</span></div>
-          <div className="st-row"><span>语言</span><span className="st-val">中文</span></div>
+          <div className="st-sec-title">外观</div>
+          <div className="st-row" onClick={cycleTheme}>
+            <div className="st-row-left">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              <span>主题</span>
+            </div>
+            <span className="st-val">{THEMES.find(t=>t.id===theme)?.name}</span>
+          </div>
+          <div className="st-row" onClick={cycleFont}>
+            <div className="st-row-left">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+              <span>字体</span>
+            </div>
+            <span className="st-val">{FONTS.find(f=>f.id===font)?.name}</span>
+          </div>
+          <div className="st-row" onClick={cycleFontSize}>
+            <div className="st-row-left">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 19l4-14h1l4 14"/><path d="M6 13h5"/><path d="M15 17l2-6h.5l2 6"/><path d="M16 15h2.5"/></svg>
+              <span>字体大小</span>
+            </div>
+            <span className="st-val">{sizeLabel}</span>
+          </div>
+        </div>
+
+        <div className="st-sec">
+          <div className="st-sec-title">功能</div>
+          <div className="st-row">
+            <div className="st-row-left">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span>思考过程</span>
+            </div>
+            <label className="tgl"><input type="checkbox" checked={showCot} onChange={e => setShowCot(e.target.checked)}/><span className="tgs"/></label>
+          </div>
         </div>
 
         <ApiSection title="聊天 API（OpenAI 兼容）" profiles={apiProfiles} setProfiles={setApiProfiles} activeId={activeApiId} setActiveId={setActiveApiId} />
@@ -73,8 +138,8 @@ export default function Settings({ onClose, apiProfiles, setApiProfiles, activeA
 
         <div className="st-sec">
           <div className="st-sec-title">关于</div>
-          <div className="st-row"><span>版本</span><span className="st-val">0.1.0</span></div>
-          <div className="st-row"><span>开发者</span><span className="st-val">Mooncci & Claude</span></div>
+          <div className="st-row"><div className="st-row-left"><span>版本</span></div><span className="st-val">0.1.0</span></div>
+          <div className="st-row"><div className="st-row-left"><span>开发者</span></div><span className="st-val">Mooncci & Claude</span></div>
         </div>
       </div>
     </div>
