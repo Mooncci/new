@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 const STYLE_PRESETS = [
   { id: 'default', name: '默认', desc: '自然对话风格' },
@@ -8,28 +8,22 @@ const STYLE_PRESETS = [
   { id: 'literary', name: '文艺', desc: '富有诗意的表达' },
 ]
 
-export default function BottomSheet({ show, onClose, searchEnabled, setSearchEnabled, searchApiKey, setSearchApiKey, activeStyle, setActiveStyle, customStyles, setCustomStyles, mcpServers, setMcpServers }) {
+export default function BottomSheet({ show, onClose, onFile, searchEnabled, setSearchEnabled, searchApiKey, setSearchApiKey, activeStyle, setActiveStyle, customStyles, setCustomStyles, mcpServers, setMcpServers }) {
   const [newStyleName, setNewStyleName] = useState('')
   const [newStyleDesc, setNewStyleDesc] = useState('')
   const [newMcpName, setNewMcpName] = useState('')
   const [newMcpUrl, setNewMcpUrl] = useState('')
+  const imgRef = useRef(null)
+  const fileRef = useRef(null)
+  const camRef = useRef(null)
 
   const allStyles = [...STYLE_PRESETS, ...customStyles]
+  const addStyle = () => { if (!newStyleName.trim()) return; setCustomStyles(p => [...p, { id: `c${Date.now()}`, name: newStyleName, desc: newStyleDesc||'自定义' }]); setNewStyleName(''); setNewStyleDesc('') }
+  const addMcp = () => { if (!newMcpName.trim()||!newMcpUrl.trim()) return; setMcpServers(p => [...p, { id: Date.now(), name: newMcpName, url: newMcpUrl, connected: false }]); setNewMcpName(''); setNewMcpUrl('') }
+  const toggleMcp = (id) => setMcpServers(p => p.map(s => s.id===id?{...s,connected:!s.connected}:s))
+  const delMcp = (id) => setMcpServers(p => p.filter(s => s.id!==id))
 
-  const addStyle = () => {
-    if (!newStyleName.trim()) return
-    setCustomStyles(p => [...p, { id: `c${Date.now()}`, name: newStyleName, desc: newStyleDesc || '自定义' }])
-    setNewStyleName(''); setNewStyleDesc('')
-  }
-
-  const addMcp = () => {
-    if (!newMcpName.trim() || !newMcpUrl.trim()) return
-    setMcpServers(p => [...p, { id: Date.now(), name: newMcpName, url: newMcpUrl, connected: false }])
-    setNewMcpName(''); setNewMcpUrl('')
-  }
-
-  const toggleMcp = (id) => setMcpServers(p => p.map(s => s.id===id ? {...s, connected: !s.connected} : s))
-  const delMcp = (id) => setMcpServers(p => p.filter(s => s.id !== id))
+  const pick = (type) => { if(type==='image') imgRef.current?.click(); else if(type==='camera') camRef.current?.click(); else fileRef.current?.click(); onClose() }
 
   return (
     <>
@@ -37,16 +31,27 @@ export default function BottomSheet({ show, onClose, searchEnabled, setSearchEna
       <div className={`bs ${show?'s':''}`}>
         <div className="bsh" />
         <div className="bsb">
+          <div className="qs-row">
+            <button className="qs-opt" onClick={() => pick('image')}>
+              <div className="qs-icon" style={{background:'#E8F5E9',color:'#4CAF50'}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+              <span>图片</span>
+            </button>
+            <button className="qs-opt" onClick={() => pick('file')}>
+              <div className="qs-icon" style={{background:'#E3F2FD',color:'#2196F3'}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+              <span>文件</span>
+            </button>
+            <button className="qs-opt" onClick={() => pick('camera')}>
+              <div className="qs-icon" style={{background:'#FFF3E0',color:'#FF9800'}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+              <span>拍照</span>
+            </button>
+          </div>
+          <div className="sd" />
           <div className="sr">
-            <div className="srl">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9B9384" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <div><span>搜索</span><span className="srd">Google 搜索</span></div>
-            </div>
+            <div className="srl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9B9384" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><div><span>搜索</span><span className="srd">Google 搜索</span></div></div>
             <label className="tgl"><input type="checkbox" checked={searchEnabled} onChange={e => setSearchEnabled(e.target.checked)}/><span className="tgs"/></label>
           </div>
           {searchEnabled && <div className="ssub"><input type="password" value={searchApiKey} onChange={e => setSearchApiKey(e.target.value)} placeholder="Google API Key（待接入）" /></div>}
           <div className="sd" />
-
           <div className="sst">文风</div>
           <div className="slv">
             {allStyles.map(s => (
@@ -56,27 +61,18 @@ export default function BottomSheet({ show, onClose, searchEnabled, setSearchEna
               </div>
             ))}
           </div>
-          <div className="ssub">
-            <input value={newStyleName} onChange={e => setNewStyleName(e.target.value)} placeholder="自定义文风名称" />
-            <input value={newStyleDesc} onChange={e => setNewStyleDesc(e.target.value)} placeholder="描述（可选）" />
-            <button className="sabb" onClick={addStyle}>添加</button>
-          </div>
+          <div className="ssub"><input value={newStyleName} onChange={e => setNewStyleName(e.target.value)} placeholder="自定义文风名称" /><input value={newStyleDesc} onChange={e => setNewStyleDesc(e.target.value)} placeholder="描述（可选）" /><button className="sabb" onClick={addStyle}>添加</button></div>
           <div className="sd" />
-
           <div className="sst">MCP 服务器</div>
           {mcpServers.map(s => (
-            <div key={s.id} className="mr">
-              <div className="mrl"><span className={`dot ${s.connected?'on':''}`}/><div><div className="mn">{s.name}</div><div className="mu">{s.url}</div></div></div>
-              <div className="ma"><button onClick={() => toggleMcp(s.id)}>{s.connected?'断开':'连接'}</button><button className="mdel" onClick={() => delMcp(s.id)}>删除</button></div>
-            </div>
+            <div key={s.id} className="mr"><div className="mrl"><span className={`dot ${s.connected?'on':''}`}/><div><div className="mn">{s.name}</div><div className="mu">{s.url}</div></div></div><div className="ma"><button onClick={() => toggleMcp(s.id)}>{s.connected?'断开':'连接'}</button><button className="mdel" onClick={() => delMcp(s.id)}>删除</button></div></div>
           ))}
-          <div className="ssub">
-            <input value={newMcpName} onChange={e => setNewMcpName(e.target.value)} placeholder="名称" />
-            <input value={newMcpUrl} onChange={e => setNewMcpUrl(e.target.value)} placeholder="服务器地址" />
-            <button className="sabb" onClick={addMcp}>添加</button>
-          </div>
+          <div className="ssub"><input value={newMcpName} onChange={e => setNewMcpName(e.target.value)} placeholder="名称" /><input value={newMcpUrl} onChange={e => setNewMcpUrl(e.target.value)} placeholder="服务器地址" /><button className="sabb" onClick={addMcp}>添加</button></div>
         </div>
       </div>
+      <input ref={imgRef} type="file" accept="image/*" hidden onChange={onFile} />
+      <input ref={fileRef} type="file" hidden onChange={onFile} />
+      <input ref={camRef} type="file" accept="image/*" capture="environment" hidden onChange={onFile} />
     </>
   )
 }
