@@ -13,7 +13,6 @@ export default function Chat({ messages, pushMessage, updateLastBotMsg, onShowTh
   const timerRef = useRef(null)
   const thinkTimerRef = useRef(null)
   const endRef = useRef(null)
-
   const hasMsg = messages.length > 0
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, streamText])
@@ -22,7 +21,7 @@ export default function Chat({ messages, pushMessage, updateLastBotMsg, onShowTh
     setIsGen(true); setStreamText(''); setStreamThink(''); setStreamThinkTitle('')
     pushMessage({ id: Date.now(), text: '', sender: 'bot', thinking: '', thinkTitle: '' })
     let ti = 0
-    const thinkTitle = '思考用户的请求'
+    const thinkTitle = '审视了真心与责任的区别，确认了留...'
     setStreamThinkTitle(thinkTitle)
     thinkTimerRef.current = setInterval(() => {
       ti++
@@ -66,10 +65,10 @@ export default function Chat({ messages, pushMessage, updateLastBotMsg, onShowTh
               {m.sender === 'user' ? <p className="tu">{m.text}</p> : (
                 <div className="bot-wrap">
                   {(m.thinking || (i === messages.length-1 && isGen && streamThink)) && (
-                    <button className="think-btn" onClick={() => onShowThinking(m.thinking || streamThink, m.thinkTitle || streamThinkTitle)}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C4916E" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                      <span>{m.thinkTitle || streamThinkTitle || '思考'}</span>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B5AD9E" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+                    <button className="think-chip" onClick={() => onShowThinking(m.thinking || streamThink, m.thinkTitle || streamThinkTitle)}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9B9384" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      <span className="think-chip-text">{m.thinkTitle || streamThinkTitle || '思考'}</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B5AD9E" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
                     </button>
                   )}
                   {i === messages.length-1 && isGen ? <p className="tb">{streamText}<span className="cursor">|</span></p> : <p className="tb">{m.text}</p>}
